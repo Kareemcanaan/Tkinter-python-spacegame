@@ -185,3 +185,55 @@ class MainApplication(tk.Frame):
                     self.enemies = [x for x in self.enemies if x.me != item]
                     self.canvas.delete(item)
         self.root.after(35, self.missile_collision)
+
+
+    def left(self):
+        if self.active and self.x > 74:
+            self.canvas.move(self.player, -10, 0)
+            self.x -= 10
+
+    def right(self):
+        if self.active and self.x < 1550:
+            self.canvas.move(self.player, 10, 0)
+            self.x += 10
+
+    def fire(self):
+        if self.active:
+            self.playerOrdnance.append(PlayerMissile(self.root, self.canvas, self.x, self.y+24))
+
+    def key_loop(self):
+        now = time()
+        for key in self.keys:
+            if key in self.bindings:
+                if key not in self.run_bindings:
+                    self.run_bindings[key] = now
+                if key not in self.delay_bindings:
+                    self.delay_bindings[key] = now
+                if self.bindings[key]["delay"] == 0 and self.bindings[key]["repeat"] == 0:
+                    if self.run_bindings[key] == now:
+                        self.bindings[key]["function"]()
+                elif self.bindings[key]["delay"] == 0 and self.bindings[key]["repeat"] != 0:
+                    if now - self.run_bindings[key] >= self.bindings[key]["repeat"]:
+                        self.bindings[key]["function"]()
+                        self.run_bindings[key] = now
+                elif self.bindings[key]["delay"] != 0 and self.bindings[key]["repeat"] == 0:
+                    if now - self.delay_bindings[key] >= self.bindings[key]["delay"] and self.run_bindings[key] == now:
+                        self.bindings[key]["function"]()
+                        self.delay_bindings[key] = now
+                else:
+                    if now - self.delay_bindings[key] >= self.bindings[key]["delay"]:
+                        self.bindings[key]["function"]()
+                        self.delay_bindings[key] = now
+
+                    
+        
+        
+        self.root.after(10, self.key_loop)
+
+    def keydown(self, event=None):
+        self.keys.add(event.keysym)
+            
+    def keyup(self, event=None):
+        self.keys.remove(event.keysym)
+        if event.keysym in self.run_bindings:
+            del self.run_bindings[event.keysym]
