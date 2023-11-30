@@ -237,3 +237,11 @@ class MainApplication(tk.Frame):
         self.keys.remove(event.keysym)
         if event.keysym in self.run_bindings:
             del self.run_bindings[event.keysym]
+
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry("1920x900")
+    MainApplication(root).pack(side="top", fill="both", expand=True)
+    root.mainloop()
