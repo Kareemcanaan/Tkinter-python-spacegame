@@ -245,3 +245,4 @@ if __name__ == "__main__":
     root.geometry("1920x900")
     MainApplication(root).pack(side="top", fill="both", expand=True)
     root.mainloop()
+    
