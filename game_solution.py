@@ -79,8 +79,8 @@ class MainApplication(tk.Frame): #main application class
     def toggle_boss_key(self):
         if not self.boss_key_active:
             # Display the boss screen and pause the game
-            self.boss_image = ImageTk.PhotoImage(Image.open("images/boss_screen.png"))  # Adjust the file path as needed
-            self.boss_screen = self.canvas.create_image(800, 450, image=self.boss_image)  # Adjust position as needed
+            self.boss_image = ImageTk.PhotoImage(Image.open("images/boss.png"))
+            self.boss_screen = self.canvas.create_image(1920, 1080, image=self.boss_image)
             self.canvas.tag_raise(self.boss_screen)
             self.boss_key_active = True
             self.toggle_pause()  # Pause the game
