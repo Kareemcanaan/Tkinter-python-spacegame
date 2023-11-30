@@ -8,7 +8,7 @@ import time as Time
 def time() -> int:
     return int(Time.time() *1000)
 
-class EnemyMissile():
+class EnemyMissile(): 
     def __init__(self, root, canvas, x, y):
         self.root = root
         self.canvas = canvas
@@ -53,7 +53,8 @@ class Enemy():
     def shoot(self, count):
         if random.randint(1, 1+(round(0.5*count))) == 1:
             return True
-        
+
+
 
 class MainApplication(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -238,11 +239,8 @@ class MainApplication(tk.Frame):
         if event.keysym in self.run_bindings:
             del self.run_bindings[event.keysym]
 
-
-
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("1920x900")
     MainApplication(root).pack(side="top", fill="both", expand=True)
     root.mainloop()
-    
