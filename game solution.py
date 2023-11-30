@@ -53,3 +53,135 @@ class Enemy():
     def shoot(self, count):
         if random.randint(1, 1+(round(0.5*count))) == 1:
             return True
+        
+
+class MainApplication(tk.Frame):
+    def __init__(self, parent, *args, **kwargs):
+        tk.Frame.__init__(self, parent, *args, **kwargs)
+        self.root = parent
+
+        self.canvas = tk.Canvas(parent, width=1600, height=900, bg='black')
+        self.canvas.pack(side="left")
+        self.active = False
+        self.enemies = []
+        self.enemyOrdnance = []
+        self.playerOrdnance = []
+        self.x = 800
+        self.y = 800
+        self.fired = False
+        self.keys = set()
+        self.rects = []
+
+
+
+        self.current = {}
+        self.functions = {}
+        self.root.bind("<KeyPress>", self.keydown, add="+")
+        self.root.bind("<KeyRelease>", self.keyup, add="+")
+
+        self.bindings = {            
+            "a": {"function": self.left, "repeat": 10, "delay": 0},
+            "d": {"function": self.right, "repeat": 10, "delay": 0},
+            "esc": {"function": self.pause, "repeat": 0, "delay": 0},
+            "space": {"function": self.fire, "repeat": 0, "delay": 500},
+        }
+
+        self.run_bindings = {}
+        self.delay_bindings = {}
+
+
+        self.key_loop()
+      #  self.root.after(100, self.clear_rects)
+        self.start()
+
+    def clear_rects(self):
+        for rect in self.rects:
+            self.canvas.delete(rect)
+        self.rects = []
+        self.root.after(100, self.clear_rects)
+
+    def start(self):
+        self.active = True
+        self.player_image = ImageTk.PhotoImage(Image.open("images/pship.png"))
+        self.player = self.canvas.create_image(800, 800, image=self.player_image)
+        for i in range(80, 1580, 150):
+            for j in range(80, 440, 120):
+                self.enemies.append(Enemy(self.root, self.canvas, i, j))
+        self.root.after(100, self.enemies_logic)
+        self.root.after(100, self.enemy_ordnance_logic)
+        self.root.after(100, self.player_ordnance_logic)
+        self.root.after(100, self.collision_detection)
+        self.root.after(100, self.missile_collision)
+
+        
+    def pause(self):
+        pass
+
+
+    def enemies_logic(self):
+        if self.active:
+            for enemy in self.enemies:
+                enemy.move()
+                if enemy.shoot(len(self.enemies)):
+                    self.enemyOrdnance.append(EnemyMissile(self.root, self.canvas, enemy.x, enemy.y+24))
+        self.root.after(1000, self.enemies_logic)
+    
+    def enemy_ordnance_logic(self):
+        if self.active:
+            for missile in self.enemyOrdnance:
+                self.canvas.move(missile.me, 0, 15)
+                missile.x += 10
+                if missile.y > 900:
+                    self.canvas.delete(missile.me)
+                    self.enemyOrdnance.remove(missile)
+            for missile in self.playerOrdnance:
+                self.canvas.move(missile.me, 0, -10)
+                missile.y += -20
+                if missile.y < 0:
+                    self.canvas.delete(missile.me)
+                    self.playerOrdnance.remove(missile)
+        self.root.after(50, self.enemy_ordnance_logic)
+    
+    def player_ordnance_logic(self):
+        if self.active:
+            for missile in self.playerOrdnance:
+                self.canvas.move(missile.me, 0, -5)
+                missile.y += -5
+        self.root.after(20, self.player_ordnance_logic)
+    
+    def collision_detection(self):
+        if self.active:
+            enemies = [e.me for e in self.enemies]
+            ordnance = [o.me for o in self.enemyOrdnance]
+            data = self.canvas.find_overlapping(self.x, self.y, self.x+48, self.y+48)[1:]
+         #   self.rects.append(self.canvas.create_rectangle(self.x-24, self.y-24, self.x+24, self.y+24, outline="white"))
+            if data:
+                for item in data:
+                    if item in ordnance or item in enemies:
+                        self.active = False
+                        self.canvas.create_text(800, 450, text="GAME OVER", font=("Arial", 50), fill="white")
+                        break
+        self.root.after(25, self.collision_detection)
+    
+    def missile_collision(self):
+        for missile in self.playerOrdnance:
+            data = self.canvas.find_overlapping(missile.x-6, missile.y-13, missile.x+6, missile.y+13)
+          #  self.rects.append(self.canvas.create_rectangle(missile.x-6, missile.y-13, missile.x+6, missile.y+13, outline="white"))
+
+            enemies = [e.me for e in self.enemies]
+            ordnance = [o.me for o in self.enemyOrdnance]
+            data = list(data)
+            if self.player in data:
+                data.remove(self.player)
+            for item in data:
+                if item in ordnance:
+                    self.canvas.delete(missile.me)
+                    self.playerOrdnance.remove(missile)
+                    self.enemyOrdnance = [x for x in self.enemyOrdnance if x.me != item]
+                    self.canvas.delete(item)
+                elif item in enemies:
+                    self.canvas.delete(missile.me)
+                    self.playerOrdnance.remove(missile)
+                    self.enemies = [x for x in self.enemies if x.me != item]
+                    self.canvas.delete(item)
+        self.root.after(35, self.missile_collision)
