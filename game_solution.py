@@ -8,7 +8,7 @@ import time as Time
 def time() -> int:
     return int(Time.time() *1000)
 
-class EnemyMissile(): 
+class EnemyMissile(): #enemy missile class
     def __init__(self, root, canvas, x, y):
         self.root = root
         self.canvas = canvas
@@ -17,7 +17,7 @@ class EnemyMissile():
         self.image = ImageTk.PhotoImage(Image.open("images/enemy_missile.png"))
         self.me = self.canvas.create_image(x, y, image=self.image)
 
-class PlayerMissile():
+class PlayerMissile(): #player missle class
     def __init__(self, root, canvas, x, y):
         self.root = root
         self.canvas = canvas
@@ -27,7 +27,7 @@ class PlayerMissile():
         self.me = self.canvas.create_image(x, y, image=self.image)
 
 
-class Enemy():
+class Enemy():  #Enemy/Alien class
     def __init__(self, root, canvas, x, y):
         self.root = root
         self.canvas = canvas
@@ -42,7 +42,7 @@ class Enemy():
         self.sequence = [[x_jump, 0], [x_jump, 0], [x_jump, 0], [x_jump, 0], [0, y_jump], [-x_jump, 0], [-x_jump, 0], [-x_jump, 0], [-x_jump, 0], [0, y_jump]]
         self.count = 0
 
-    def move(self):
+    def move(self): #user movement
         if self.count > 9:
             self.count = 0
         self.canvas.move(self.me, *self.sequence[self.count])
@@ -50,13 +50,13 @@ class Enemy():
         self.y += self.sequence[self.count][1]
         self.count += 1
 
-    def shoot(self, count):
+    def shoot(self, count): #shoot function
         if random.randint(1, 1+(round(0.5*count))) == 1:
             return True
 
 
 
-class MainApplication(tk.Frame):
+class MainApplication(tk.Frame): #main application class
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.root = parent
@@ -101,7 +101,7 @@ class MainApplication(tk.Frame):
         self.rects = []
         self.root.after(100, self.clear_rects)
 
-    def start(self):
+    def start(self): #start function
         self.active = True
         self.player_image = ImageTk.PhotoImage(Image.open("images/pship.png"))
         self.player = self.canvas.create_image(800, 800, image=self.player_image)
@@ -115,11 +115,11 @@ class MainApplication(tk.Frame):
         self.root.after(100, self.missile_collision)
 
         
-    def pause(self):
+    def pause(self): #pause function
         pass
 
 
-    def enemies_logic(self):
+    def enemies_logic(self): #enemy logic
         if self.active:
             for enemy in self.enemies:
                 enemy.move()
@@ -127,7 +127,7 @@ class MainApplication(tk.Frame):
                     self.enemyOrdnance.append(EnemyMissile(self.root, self.canvas, enemy.x, enemy.y+24))
         self.root.after(1000, self.enemies_logic)
     
-    def enemy_ordnance_logic(self):
+    def enemy_ordnance_logic(self): #enemy ordnance logic
         if self.active:
             for missile in self.enemyOrdnance:
                 self.canvas.move(missile.me, 0, 15)
@@ -143,14 +143,14 @@ class MainApplication(tk.Frame):
                     self.playerOrdnance.remove(missile)
         self.root.after(50, self.enemy_ordnance_logic)
     
-    def player_ordnance_logic(self):
+    def player_ordnance_logic(self): #player ordnance logic
         if self.active:
             for missile in self.playerOrdnance:
                 self.canvas.move(missile.me, 0, -5)
                 missile.y += -5
         self.root.after(20, self.player_ordnance_logic)
     
-    def collision_detection(self):
+    def collision_detection(self):  #collision detection
         if self.active:
             enemies = [e.me for e in self.enemies]
             ordnance = [o.me for o in self.enemyOrdnance]
@@ -164,7 +164,7 @@ class MainApplication(tk.Frame):
                         break
         self.root.after(25, self.collision_detection)
     
-    def missile_collision(self):
+    def missile_collision(self): #missile collision
         for missile in self.playerOrdnance:
             data = self.canvas.find_overlapping(missile.x-6, missile.y-13, missile.x+6, missile.y+13)
           #  self.rects.append(self.canvas.create_rectangle(missile.x-6, missile.y-13, missile.x+6, missile.y+13, outline="white"))
@@ -188,21 +188,21 @@ class MainApplication(tk.Frame):
         self.root.after(35, self.missile_collision)
 
 
-    def left(self):
+    def left(self): #left function
         if self.active and self.x > 74:
             self.canvas.move(self.player, -10, 0)
             self.x -= 10
 
-    def right(self):
+    def right(self): #right function
         if self.active and self.x < 1550:
             self.canvas.move(self.player, 10, 0)
             self.x += 10
 
-    def fire(self):
+    def fire(self): #fire function
         if self.active:
             self.playerOrdnance.append(PlayerMissile(self.root, self.canvas, self.x, self.y+24))
 
-    def key_loop(self):
+    def key_loop(self): #key loop, runs every 10 ms
         now = time()
         for key in self.keys:
             if key in self.bindings:
@@ -231,7 +231,7 @@ class MainApplication(tk.Frame):
         
         self.root.after(10, self.key_loop)
 
-    def keydown(self, event=None):
+    def keydown(self, event=None): #defines keydown and keyup and binds them
         self.keys.add(event.keysym)
             
     def keyup(self, event=None):
