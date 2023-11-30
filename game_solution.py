@@ -1,4 +1,9 @@
 #1920 x 1080
+#boss image src=http://www.clker.com/clipart-612497.html
+#enemy missile src= https://opengameart.org/content/pixel-space-invaders
+#player missile src= https://opengameart.org/content/pixel-space-invaders
+#aliens src= https://opengameart.org/content/pixel-space-invaders
+#pship src= https://opengameart.org/content/pixel-space-invaders
 import tkinter as tk
 from PIL import Image, ImageTk
 import random
@@ -67,30 +72,6 @@ class MainApplication(tk.Frame): #main application class
         self.boss_key_active = False
 
 
-    def toggle_pause(self):
-        if not self.paused:
-            self.paused = True
-            # Add any additional logic you need when the game is paused
-        else:
-            self.paused = False
-            # Add any logic you need when the game resumes
-
-
-    def toggle_boss_key(self):
-        if not self.boss_key_active:
-            # Display the boss screen and pause the game
-            self.boss_image = ImageTk.PhotoImage(Image.open("images/boss.png"))
-            self.boss_screen = self.canvas.create_image(1920, 1080, image=self.boss_image)
-            self.canvas.tag_raise(self.boss_screen)
-            self.boss_key_active = True
-            self.toggle_pause()  # Pause the game
-        else:
-            # Hide the boss screen and unpause the game
-            self.canvas.delete(self.boss_screen)
-            self.boss_key_active = False
-            self.toggle_pause()  # Unpause the game
-
-
         self.canvas = tk.Canvas(parent, width=1600, height=900, bg='black')
         self.canvas.pack(side="left")
         self.active = False
@@ -119,6 +100,30 @@ class MainApplication(tk.Frame): #main application class
 
         self.run_bindings = {}
         self.delay_bindings = {}
+
+
+    def toggle_pause(self):
+        if not self.paused:
+            self.paused = True
+            # Add any additional logic you need when the game is paused
+        else:
+            self.paused = False
+            # Add any logic you need when the game resumes
+
+
+    def toggle_boss_key(self):
+        if not self.boss_key_active:
+            # Display the boss screen and pause the game
+            self.boss_image = ImageTk.PhotoImage(Image.open("images/boss.png"))
+            self.boss_screen = self.canvas.create_image(1920, 1080, image=self.boss_image)
+            self.canvas.tag_raise(self.boss_screen)
+            self.boss_key_active = True
+            self.toggle_pause()  # Pause the game
+        else:
+            # Hide the boss screen and unpause the game
+            self.canvas.delete(self.boss_screen)
+            self.boss_key_active = False
+            self.toggle_pause()  # Unpause the game
 
 
         self.key_loop()
