@@ -61,6 +61,36 @@ class MainApplication(tk.Frame): #main application class
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.root = parent
 
+        self.bindings["p"] = {"function": self.toggle_pause, "repeat": 0, "delay": 0}
+        self.bindings["b"] = {"function": self.toggle_boss_key, "repeat": 0, "delay": 0}
+        self.paused = False
+        self.boss_key_active = False
+
+
+    def toggle_pause(self):
+        if not self.paused:
+            self.paused = True
+            # Add any additional logic you need when the game is paused
+        else:
+            self.paused = False
+            # Add any logic you need when the game resumes
+
+
+    def toggle_boss_key(self):
+        if not self.boss_key_active:
+            # Display the boss screen and pause the game
+            self.boss_image = ImageTk.PhotoImage(Image.open("images/boss_screen.png"))  # Adjust the file path as needed
+            self.boss_screen = self.canvas.create_image(800, 450, image=self.boss_image)  # Adjust position as needed
+            self.canvas.tag_raise(self.boss_screen)
+            self.boss_key_active = True
+            self.toggle_pause()  # Pause the game
+        else:
+            # Hide the boss screen and unpause the game
+            self.canvas.delete(self.boss_screen)
+            self.boss_key_active = False
+            self.toggle_pause()  # Unpause the game
+
+
         self.canvas = tk.Canvas(parent, width=1600, height=900, bg='black')
         self.canvas.pack(side="left")
         self.active = False
