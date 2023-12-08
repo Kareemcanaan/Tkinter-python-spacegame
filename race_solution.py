@@ -112,44 +112,38 @@ class Races:#(s)
         pass#(s)
 
     def class_table_discard_result(self, boat_type, results_string):#(s)
-        country_points = {str(i).zfill(2): {'single': [], 'double': []} for i in range(1, 11)}
-        last_race_order = []
+        singles = []
+        doubles = []
 
-        for race in results_string:
-            current_boat_type, race_type = race[:2], race[2:4]
-            if current_boat_type == str(boat_type).zfill(2):
-                race_results = race[5:].split('-')
+        races = [x for x in results_string if x.startswith(str(boat_type).zfill(2))] # get only the races that we want
 
-                for i, result in enumerate(race_results):
-                    country = result[:2] 
-                    if result.endswith('xx'):  
-                        points = 22 if race_type == '02' else 11
-                        country_points[country]['double' if race_type == '02' else 'single'].append(points)
-                       
-                        for j in range(i + 1, len(race_results)):
-                            following_country = race_results[j][:2]
-                            position_points = j  
-                            points = position_points * 2 if race_type == '02' else position_points
-                            country_points[following_country]['double' if race_type == '02' else 'single'].append(points)
-                        break  
-                    else:
-                        points = (i + 1) * 2 if race_type == '02' else (i + 1)
-                        country_points[country]['double' if race_type == '02' else 'single'].append(points)
+        for race in races:
+            r = {k: v for k, v in [[j[:2], int(j[2:]) if not j[2:].endswith("xx") else 11] for j in race[5:].split('-')]} # get the scores of each race formatted properly
+            if int(race[2:4]) == 1: # if double or single pointer race, etc.
+                singles.append(r)
+            else:
+                doubles.append(r)
 
-                last_race_order = [result[:2] for result in race_results]  
+        
+        if len(singles) > 2:
+            removal = {k: max([x[k] for x in singles]) for k in singles[0].keys()} # take the minimum value for each country
+            total_single = {k: sum([x[k] for x in singles]) - removal[k] for k in singles[0].keys()} # and add scores while subtracting the minimum value
+        else:
+            total_single = {k: sum([x[k] for x in singles]) for k in singles[0].keys()} # otherwise just add the scores
+        
+        if len(doubles) > 2:
+            removal = {k: max([x[k] for x in doubles]) for k in doubles[0].keys()}
+            total_double = {k: sum([x[k] for x in doubles]) - removal[k] for k in doubles[0].keys()}
+        else:
+            total_double = {k: sum([x[k] for x in doubles]) for k in doubles[0].keys()}
 
-        for country, races in country_points.items():
-            for race_type in races:
-                if len(races[race_type]) > 2: 
-                    races[race_type].sort(reverse=True)
-                    races[race_type].pop(0)  
+        total = {k: total_single[k] + total_double[k]*2 for k in total_single.keys()} # add the single and double scores together
 
-            country_points[country] = sum(races['single']) + sum(races['double'])
-
-        sorted_countries = sorted(country_points.items(), key=lambda x: (x[1], last_race_order.index(x[0]) if x[0] in last_race_order else float('inf')))
-        formatted_results = [f"{country}-{str(idx+1).zfill(2)}-{total_points}" for idx, (country, total_points) in enumerate(sorted_countries)]
-
-        return ", ".join(formatted_results)
+        sorted_countries = sorted(total.items(), key=lambda x: (x[1], x[0]))
+        output = []
+        for i in range(len(sorted_countries)):
+            output.append(f"{sorted_countries[i][0]}-{str(i+1).zfill(2)}-{sorted_countries[i][1]}")
+        return ", ".join(output)
         """
         Output the class table discard string
 
@@ -199,5 +193,5 @@ class Races:#(s)
 
 
 if __name__ == '__main__':#(s)
-
+    
     pass#(s)
